@@ -7,19 +7,32 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <article class="card">
-        <figure class="picture">
-            <img src="{{ c.image }}" alt="{{ c.name }}">
-        </figure>
-    <div class="text">
-        <h1>{{ c.name }}</h1>
-        <p class="anime">Series: {{ c.series }}</p>
-        <p class="desc">{{ c.description | truncate(500) }}</p>
-        <p class="more"><a href="{{ c.siteUrl }}" target="_blank" rel="noopener noreferrer">More about {{ c.name }} here!</a></p>
-    </div>
-    </article>
-    <footer>
-        <p>Character data and images from <a href="https://anilist.co/" target="_blank" rel="noopener noreferrer">AniList</a></p>
-    </footer>
+    {% if c %}
+        <article class="card">
+            <figure class="picture">
+                <img src="{{ c.image }}" alt="{{ c.name }}">
+            </figure>
+        <div class="text">
+            <h1>{{ c.name }}</h1>
+            <p class="anime">Series: {{ c.series }}</p>
+            <p class="desc">{{ c.description | truncate(500) }}</p>
+            <p class="more"><a href="{{ c.siteUrl }}" target="_blank" rel="noopener noreferrer">More about {{ c.name }} here!</a></p>
+        </div>
+        </article>
+        <footer>
+            <p>Character data and images from <a href="https://anilist.co/" target="_blank" rel="noopener noreferrer">AniList</a></p>
+        </footer>
+    {% else %}
+        <article class="card">
+            <div class="text">
+                <h1> Oh no!</h1>
+                <p>Something happened and we cannot show our characters.</p>
+                <p>We'll fix it quickly!</p>
+            </div>
+        </article>
+        <footer>
+            <p>Character data and images from <a href="https://anilist.co/" target="_blank" rel="noopener noreferrer">AniList</a></p>
+        </footer>
+    {% endif %}
 </body>
 </html>
