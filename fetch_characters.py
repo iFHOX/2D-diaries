@@ -1,8 +1,10 @@
 import json
 import time
+from pathlib import Path
 import requests
 import re
 import html
+import os
 
 query = '''
 query ($page: Int, $perPage: Int) {
@@ -26,10 +28,11 @@ query ($page: Int, $perPage: Int) {
                         title {
                             romaji
                         }
+                        isAdult
                     }
+
                 }
                 description
-                age
                 gender
             }
         }
@@ -66,48 +69,47 @@ def fetch_page(page):
 
     url = 'https://graphql.anilist.co'
 
-    response = requests.post(url, json={'query': query, 'variables': variables})
-    result = response.json()
-    if 'errors' in result:
-        print(result['errors'])
-        return None
-    else:
+    MAX_RETRIES = 5
+    for retry in range(MAX_RETRIES):
+        response = requests.post(url, json={'query': query, 'variables': variables}, timeout=10)
+        if response.status_code == 429:
+            timetosleep = int(response.headers.get("Retry-After", 5))
+            time.sleep(timetosleep)
+            continue
+        response.raise_for_status()
+        result = response.json()
+        if 'errors' in result:
+            raise RuntimeError(result['errors'])
         return result['data']['Page']
+    raise RuntimeError(f"Failed to fetch page {page} after {MAX_RETRIES} retries")
 
-results = []
-page = 1
+BASE_DIR = Path(__file__).parent
+TMP_PATH = BASE_DIR / 'characters.json.tmp'
+OUT_PATH = BASE_DIR / 'characters.json'
 
+def main():
+    results = []
+    page = 1
+    while len(results) < 400:
+        data = fetch_page(page)
+        for c in data['characters']:
+            if c['gender'] == 'Female' and c['media']['nodes'] and c['image'] and c['description'] and not c['media']['nodes'][0]['isAdult']:
+                desc = clean_description(c['description'])
+                if desc:
+                    results.append({
+                        'name': c['name']['full'],
+                        'series': c['media']['nodes'][0]['title']['romaji'],
+                        'image': c['image']['large'],
+                        'description': desc,
+                        'siteUrl': c['siteUrl'],
+                    })
+        if not data['pageInfo']['hasNextPage']:
+            break
+        print(f"page {page}: {len(results)} so far")
+        page += 1
+        time.sleep(1)
+    with open(TMP_PATH, 'w', encoding='utf-8') as f:
+        json.dump(results[:400], f, ensure_ascii=False, indent=2)
+    os.replace(TMP_PATH, OUT_PATH)
 
-while len(results) < 400:
-    data = fetch_page(page)
-    if data is None:
-        break
-    for c in data['characters']:
-        if c['gender'] == 'Female' and c['media']['nodes'] and c['image'] and c['description'] :
-            desc = clean_description(c['description'])
-            if desc:
-                results.append({
-                    'name': c['name']['full'],
-                    'series': c['media']['nodes'][0]['title']['romaji'],
-                    'image': c['image']['large'],
-                    'description': desc,
-                    'siteUrl': c['siteUrl'],
-                })
-    if not data['pageInfo']['hasNextPage']:
-        break
-    print(f"page {page}: {len(results)} so far")
-    page += 1
-    time.sleep(1)
-
-with open('characters.json', 'w', encoding='utf-8') as f:
-    json.dump(results, f, ensure_ascii=False, indent=2)
-
-
-
-
-
-
-
-
-
-
+if __name__ == "__main__": main()
