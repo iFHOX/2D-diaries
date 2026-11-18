@@ -4,6 +4,10 @@ from flask import render_template
 import json
 from pathlib import Path
 from datetime import datetime
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 BASE_DIR = Path(__file__).parent
 TIMEZONE = ZoneInfo("America/Vancouver")
@@ -24,6 +28,8 @@ for character in data:
 
 
 app = Flask(__name__)
+
+app.secret_key = os.environ["SECRET_KEY"]
 
 @app.route('/')
 def index():
