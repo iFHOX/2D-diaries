@@ -90,26 +90,46 @@ OUT_PATH = BASE_DIR / 'characters.json'
 def main():
     results = []
     page = 1
-    while len(results) < 400:
+    malecount = 0
+    femalecount = 0
+    while malecount < 400 or femalecount < 400:
         data = fetch_page(page)
         for c in data['characters']:
-            if c['gender'] == 'Female' and c['media']['nodes'] and c['image'] and c['description'] and not c['media']['nodes'][0]['isAdult']:
+            if c['media']['nodes'] and c['image'] and c['description'] and not c['media']['nodes'][0]['isAdult']:
                 desc = clean_description(c['description'])
                 if desc:
-                    results.append({
-                        'name': c['name']['full'],
-                        'series': c['media']['nodes'][0]['title']['romaji'],
-                        'image': c['image']['large'],
-                        'description': desc,
-                        'siteUrl': c['siteUrl'],
-                    })
+                    if c['gender'] == 'Male' and malecount <= 399:
+                        results.append({
+                            'id': c['id'],
+                            'gender': c['gender'],
+                            'name': c['name']['full'],
+                            'series': c['media']['nodes'][0]['title']['romaji'],
+                            'image': c['image']['large'],
+                            'description': desc,
+                            'siteUrl': c['siteUrl'],
+                        })
+                        malecount += 1
+                    if c['gender'] == 'Female' and femalecount <= 399:
+                        results.append({
+                            'id': c['id'],
+                            'gender': c['gender'],
+                            'name': c['name']['full'],
+                            'series': c['media']['nodes'][0]['title']['romaji'],
+                            'image': c['image']['large'],
+                            'description': desc,
+                            'siteUrl': c['siteUrl'],
+                        })
+                        femalecount += 1
         if not data['pageInfo']['hasNextPage']:
             break
-        print(f"page {page}: {len(results)} so far")
+        print(f"page {page}: {malecount} male, {femalecount} female")
         page += 1
         time.sleep(1)
-    with open(TMP_PATH, 'w', encoding='utf-8') as f:
-        json.dump(results[:400], f, ensure_ascii=False, indent=2)
-    os.replace(TMP_PATH, OUT_PATH)
+    if len(results) == 800:
+        with open(TMP_PATH, 'w', encoding='utf-8') as f:
+            json.dump(results, f, ensure_ascii=False, indent=2)
+        os.replace(TMP_PATH, OUT_PATH)
+    else:
+        raise Exception("Not enough characters found")
 
 if __name__ == "__main__": main()

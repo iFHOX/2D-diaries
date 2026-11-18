@@ -15,6 +15,13 @@ except (FileNotFoundError, json.JSONDecodeError) as e:
     data = []
     print(f"Error retrieving characters: {e}")
 
+femalelist = []
+for character in data:
+    if character['gender'] == 'Female':
+        femalelist.append(character)
+
+
+
 
 app = Flask(__name__)
 
@@ -27,8 +34,8 @@ def index():
 
 
 def datecharacter(day):
-    if data:
-        chosencharacter = day.toordinal() % len(data)
-        return data[chosencharacter]
+    if femalelist:
+        chosencharacter = day.toordinal() % len(femalelist)
+        return femalelist[chosencharacter]
     else:
         return None
