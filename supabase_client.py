@@ -1,5 +1,4 @@
 import os
-
 import supabase
 from supabase_auth import SyncSupportedStorage
 from flask import session

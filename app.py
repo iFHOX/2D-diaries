@@ -5,6 +5,7 @@ from pathlib import Path
 from datetime import datetime
 import os
 from dotenv import load_dotenv
+from supabase_auth.errors import AuthApiError
 
 from supabase_client import get_supabase
 
@@ -52,7 +53,17 @@ def login():
 
 @app.route('/auth/callback')
 def auth_callback():
-    return request.args.get("code")
+    code = request.args.get("code")
+    if request.args.get("error") or not code:
+        return redirect(url_for("index"))
+    client = get_supabase()
+    try:
+        client.auth.exchange_code_for_session({
+            "auth_code" : code,
+        })
+    except AuthApiError as apierror:
+        print(f"Code exchange failed: {apierror}")
+    return redirect(url_for("index"))
 
 
 def datecharacter(day):
