@@ -91,6 +91,25 @@ def auth_callback():
         print(f"Code exchange failed: {apierror}")
     return redirect(url_for("index"))
 
+@app.route('/history')
+def history():
+    client = get_supabase()
+    response = client.auth.get_user()
+    if not response:
+        return redirect(url_for("login"))
+    user = response.user
+    draws = client.table("draws").select("day", "character_id").eq("user_id", user.id).order("day", desc=True).execute()
+    characterdata = []
+    for row in draws.data:
+        characterlooked = characterbyid.get(row["character_id"])
+        if characterlooked is not None:
+            characterdata.append({
+                "day": row["day"],
+                "character": characterlooked,
+            })
+    return render_template("history.html", draws=characterdata, user=user)
+
+
 
 def datecharacter(day):
     if femalelist:

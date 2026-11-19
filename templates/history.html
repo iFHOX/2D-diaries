@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+<header class="history">
+    <h1>Your History</h1>
+</header>
+<ol class="pulls">
+    {% for item in draws %}
+    <li class="minicard">
+        <article class="card">
+            <figure class="picture">
+                <img src="{{ item.character.image }}" alt="{{ item.character.name }}">
+            </figure>
+            <div class="text">
+                <h2>{{ item.character.name }}</h2>
+                <p class="day">Pulled on: {{ item.day }}</p>
+                <p class="anime">Series: {{ item.character.series }}</p>
+            </div>
+        </article>
+    </li>
+    {% else %}
+    <li class="nothing">
+        <article class="card">
+            <div class="text">
+                <h2> No pulls yet</h2>
+                <p><a href="{{ url_for('index') }}">Claim your character of the day!</a></p>
+            </div>
+        </article>
+    </li>
+    {% endfor %}
+</ol>
+{% endblock %}

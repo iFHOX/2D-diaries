@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Waifu of the day{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header class="site-header">
+    {% if user %}
+            <p class="name">{{ user.user_metadata.get('full_name') or user.email }}</p>
+            <p class="logout"><a href="{{ url_for('logout') }}">Log out</a></p>
+            <p class="history"><a href="{{ url_for('history') }}">History</a></p>
+    {% else %}
+            <p class="login"><a href="{{ url_for('login') }}">Log in with Google</a></p>
+    {% endif %}
+</header>
+{% block content %}
+{% endblock %}
+<footer>
+    <p>Character data and images from <a href="https://anilist.co/" target="_blank" rel="noopener noreferrer">AniList</a></p>
+</footer>
+</body>
+</html>
