@@ -1,3 +1,4 @@
+import random
 from zoneinfo import ZoneInfo
 from flask import Flask, render_template, url_for, redirect, request
 import json
@@ -5,6 +6,7 @@ from pathlib import Path
 from datetime import datetime
 import os
 from dotenv import load_dotenv
+from postgrest import APIError
 from supabase_auth.errors import AuthApiError
 
 from supabase_client import get_supabase
@@ -26,6 +28,10 @@ for character in data:
     if character['gender'] == 'Female':
         femalelist.append(character)
 
+characterbyid = {}
+for character in data:
+    characterbyid[character['id']] = character
+
 
 
 
@@ -35,12 +41,21 @@ app.secret_key = os.environ["SECRET_KEY"]
 
 @app.route('/')
 def index():
+    today = datetime.now(TIMEZONE).date()
     client = get_supabase()
     response = client.auth.get_user()
     if response:
         user = response.user
-    else: user = None
-    c= datecharacter(datetime.now(TIMEZONE).date())
+        todaysdraw = todayscharacterid(client, user.id, today)
+        if todaysdraw is None:
+            todaysdraw = createstodaysdraw(client, user.id, today)
+        if todaysdraw is not None:
+            c = characterbyid[todaysdraw]
+        else:
+            c = datecharacter(today)
+    else:
+        user = None
+        c = datecharacter(today)
     if c is None:
         return render_template('index.html', c=None, user=user), 503
     return render_template('index.html', c=c, user=user)
@@ -83,3 +98,38 @@ def datecharacter(day):
         return femalelist[chosencharacter]
     else:
         return None
+
+def todayscharacterid(client, user_id, day):
+    response = client.table("draws").select("character_id").eq("user_id", user_id).eq("day", day.isoformat()).execute()
+    if response.data:
+        return response.data[0]["character_id"]
+    else:
+        return None
+
+def createstodaysdraw(client, user_id, day):
+    response = client.table("draws").select("character_id").eq("user_id", user_id).execute()
+    listofdraws = set()
+    for row in response.data:
+        listofdraws.add(row["character_id"])
+    femalecandidates = []
+    for character in femalelist:
+        if character["id"] not in listofdraws:
+            femalecandidates.append(character["id"])
+    if not femalecandidates:
+        return None
+    else:
+        randomcharacter = random.choice(femalecandidates)
+        characterdict = {
+            "user_id": user_id,
+            "day": day.isoformat(),
+            "character_id": randomcharacter,
+        }
+        try:
+            client.table("draws").insert(characterdict).execute()
+        except APIError as e:
+            if e.code == "23505":
+                return todayscharacterid(client, user_id, day)
+            else:
+                raise
+        return randomcharacter
+
