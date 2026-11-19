@@ -35,10 +35,15 @@ app.secret_key = os.environ["SECRET_KEY"]
 
 @app.route('/')
 def index():
+    client = get_supabase()
+    response = client.auth.get_user()
+    if response:
+        user = response.user
+    else: user = None
     c= datecharacter(datetime.now(TIMEZONE).date())
     if c is None:
-        return render_template('index.html', c=None), 503
-    return render_template('index.html', c=c)
+        return render_template('index.html', c=None, user=user), 503
+    return render_template('index.html', c=c, user=user)
 
 @app.route('/login')
 def login():
@@ -50,6 +55,12 @@ def login():
         }
     })
     return redirect(response.url)
+
+@app.route('/logout')
+def logout():
+    client = get_supabase()
+    client.auth.sign_out()
+    return redirect(url_for("index"))
 
 @app.route('/auth/callback')
 def auth_callback():
