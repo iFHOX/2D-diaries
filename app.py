@@ -1,11 +1,12 @@
 from zoneinfo import ZoneInfo
-from flask import Flask
-from flask import render_template
+from flask import Flask, render_template, url_for, redirect, request
 import json
 from pathlib import Path
 from datetime import datetime
 import os
 from dotenv import load_dotenv
+
+from supabase_client import get_supabase
 
 load_dotenv()
 
@@ -37,6 +38,21 @@ def index():
     if c is None:
         return render_template('index.html', c=None), 503
     return render_template('index.html', c=c)
+
+@app.route('/login')
+def login():
+    client= get_supabase()
+    response= client.auth.sign_in_with_oauth({
+        "provider" : "google",
+        "options" : {
+            "redirect_to" : url_for("auth_callback", _external=True),
+        }
+    })
+    return redirect(response.url)
+
+@app.route('/auth/callback')
+def auth_callback():
+    return request.args.get("code")
 
 
 def datecharacter(day):
