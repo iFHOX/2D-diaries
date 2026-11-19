@@ -1,46 +1,30 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Waifu of the day</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-<header class="site-header">
-    {% if user %}
-            <p class="name">{{ user.user_metadata.get('full_name') or user.email }}</p>
-            <p class="logout"><a href="{{ url_for('logout') }}">Log out</a></p>
-    {% else %}
-            <p class="login"><a href="{{ url_for('login') }}">Log in with Google</a></p>
-    {% endif %}
-</header>
-    {% if c %}
-        <article class="card">
-            <figure class="picture">
-                <img src="{{ c.image }}" alt="{{ c.name }}">
-            </figure>
-        <div class="text">
-            <h1>{{ c.name }}</h1>
-            <p class="anime">Series: {{ c.series }}</p>
-            <p class="desc">{{ c.description | truncate(500) }}</p>
-            <p class="more"><a href="{{ c.siteUrl }}" target="_blank" rel="noopener noreferrer">More about {{ c.name }} here!</a></p>
-        </div>
-        </article>
-        <footer>
-            <p>Character data and images from <a href="https://anilist.co/" target="_blank" rel="noopener noreferrer">AniList</a></p>
-        </footer>
-    {% else %}
-        <article class="card">
+{% extends "base.html" %}
+    {% block content %}
+        {% if c %}
+            <article class="card">
+                <figure class="picture">
+                    <img src="{{ c.image }}" alt="{{ c.name }}">
+                </figure>
             <div class="text">
-                <h1> Oh no!</h1>
-                <p>Something happened and we cannot show our characters.</p>
-                <p>We'll fix it quickly!</p>
+                <h1>{{ c.name }}</h1>
+                <p class="anime">Series: {{ c.series }}</p>
+                <p class="desc">{{ c.description | truncate(500) }}</p>
+                <p class="more"><a href="{{ c.siteUrl }}" target="_blank" rel="noopener noreferrer">More about {{ c.name }} here!</a></p>
             </div>
-        </article>
-        <footer>
-            <p>Character data and images from <a href="https://anilist.co/" target="_blank" rel="noopener noreferrer">AniList</a></p>
-        </footer>
-    {% endif %}
-</body>
-</html>
+            </article>
+            <footer>
+                <p>Character data and images from <a href="https://anilist.co/" target="_blank" rel="noopener noreferrer">AniList</a></p>
+            </footer>
+        {% else %}
+            <article class="card">
+                <div class="text">
+                    <h1> Oh no!</h1>
+                    <p>Something happened and we cannot show our characters.</p>
+                    <p>We'll fix it quickly!</p>
+                </div>
+            </article>
+            <footer>
+                <p>Character data and images from <a href="https://anilist.co/" target="_blank" rel="noopener noreferrer">AniList</a></p>
+            </footer>
+        {% endif %}
+    {% endblock %}
