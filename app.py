@@ -15,6 +15,7 @@ load_dotenv()
 
 BASE_DIR = Path(__file__).parent
 TIMEZONE = ZoneInfo("America/Vancouver")
+DEFAULT_GENDER_PREF = "female"
 
 try:
     with open(BASE_DIR / "characters.json", "r", encoding="utf-8") as file:
@@ -27,6 +28,11 @@ femalelist = []
 for character in data:
     if character['gender'] == 'Female':
         femalelist.append(character)
+
+malelist = []
+for character in data:
+    if character['gender'] == 'Male':
+        malelist.append(character)
 
 characterbyid = {}
 for character in data:
@@ -48,7 +54,7 @@ def index():
         user = response.user
         todaysdraw = todayscharacterid(client, user.id, today)
         if todaysdraw is None:
-            todaysdraw = createstodaysdraw(client, user.id, today)
+            todaysdraw = createstodaysdraw(client, user.id, today, genderpreference(client, user.id))
         if todaysdraw is not None:
             c = characterbyid[todaysdraw]
         else:
@@ -125,19 +131,27 @@ def todayscharacterid(client, user_id, day):
     else:
         return None
 
-def createstodaysdraw(client, user_id, day):
+def createstodaysdraw(client, user_id, day, genderpref):
+    if genderpref == "female":
+        pool = femalelist
+    elif genderpref == "male":
+        pool = malelist
+    elif genderpref == 'both':
+        pool = malelist + femalelist
+    else:
+        pool = femalelist
     response = client.table("draws").select("character_id").eq("user_id", user_id).execute()
     listofdraws = set()
     for row in response.data:
         listofdraws.add(row["character_id"])
-    femalecandidates = []
-    for character in femalelist:
+    candidates = []
+    for character in pool:
         if character["id"] not in listofdraws:
-            femalecandidates.append(character["id"])
-    if not femalecandidates:
+            candidates.append(character["id"])
+    if not candidates:
         return None
     else:
-        randomcharacter = random.choice(femalecandidates)
+        randomcharacter = random.choice(candidates)
         characterdict = {
             "user_id": user_id,
             "day": day.isoformat(),
@@ -151,4 +165,11 @@ def createstodaysdraw(client, user_id, day):
             else:
                 raise
         return randomcharacter
+
+def genderpreference(client, user_id):
+    response = client.table("profiles").select("gender_pref").eq("user_id", user_id).execute()
+    if not response.data:
+        return DEFAULT_GENDER_PREF
+    else:
+        return response.data[0]["gender_pref"]
 
