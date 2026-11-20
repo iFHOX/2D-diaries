@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>Settings</h1>
+
+    <form method="post" action="{{ url_for('settings') }}">
+        <input name="csrf_token" value="{{ csrf_token() }}" type="hidden">
+        <fieldset>
+            <legend>Show me</legend>
+        <label>
+            <input type="radio" name="gender_pref" value="female" {% if current_pref == 'female' %}checked{% endif %}>
+        Female</label>
+        <label>
+            <input type="radio" name="gender_pref" value="male" {% if current_pref == 'male' %}checked{% endif %}>
+        Male</label>
+        <label>
+            <input type="radio" name="gender_pref" value="both" {% if current_pref == 'both' %}checked{% endif %}>
+        Both</label>
+        </fieldset>
+        <button type="submit">Save</button>
+        <p>Changes apply from your next daily pick</p>
+    </form>
+{% endblock %}

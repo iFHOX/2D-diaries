@@ -14,7 +14,9 @@
                 <input name="csrf_token" value="{{ csrf_token() }}" type="hidden">
                 <button type="submit">Log out</button>
             </form>
+            <p class="main"><a href="{{ url_for('index') }}">Main</a></p>
             <p class="history"><a href="{{ url_for('history') }}">History</a></p>
+            <p class="history"><a href="{{ url_for('settings') }}">Settings</a></p>
     {% else %}
             <p class="login"><a href="{{ url_for('login') }}">Log in with Google</a></p>
     {% endif %}
