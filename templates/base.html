@@ -10,7 +10,10 @@
 <header class="site-header">
     {% if user %}
             <p class="name">{{ user.user_metadata.get('full_name') or user.email }}</p>
-            <p class="logout"><a href="{{ url_for('logout') }}">Log out</a></p>
+            <form method="post" action="{{ url_for('logout') }}">
+                <input name="csrf_token" value="{{ csrf_token() }}" type="hidden">
+                <button type="submit">Log out</button>
+            </form>
             <p class="history"><a href="{{ url_for('history') }}">History</a></p>
     {% else %}
             <p class="login"><a href="{{ url_for('login') }}">Log in with Google</a></p>
