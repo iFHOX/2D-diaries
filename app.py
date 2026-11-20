@@ -16,6 +16,7 @@ load_dotenv()
 BASE_DIR = Path(__file__).parent
 TIMEZONE = ZoneInfo("America/Vancouver")
 DEFAULT_GENDER_PREF = "female"
+GENDER_PREF = {"female", "male", "both"}
 
 try:
     with open(BASE_DIR / "characters.json", "r", encoding="utf-8") as file:
@@ -112,6 +113,27 @@ def history():
                 "character": characterlooked,
             })
     return render_template("history.html", draws=characterdata, user=user)
+
+@app.route('/settings', methods=["GET", "POST"])
+def settings():
+    client = get_supabase()
+    user = get_current_user(client)
+    if not user:
+        return redirect(url_for("login"))
+    if request.method == "POST":
+        choice = request.form.get("gender_pref")
+        if choice not in GENDER_PREF:
+            return redirect(url_for("settings"))
+        client.table("profiles").upsert({
+            "user_id": user.id,
+            "gender_pref": choice,
+        }).execute()
+        return redirect(url_for("settings"))
+    current_pref = genderpreference(client, user.id)
+    return render_template("settings.html", user=user, current_pref=current_pref)
+
+
+
 
 
 
