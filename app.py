@@ -1,6 +1,6 @@
 import random
 from zoneinfo import ZoneInfo
-from flask import Flask, render_template, url_for, redirect, request
+from flask import Flask, session, render_template, url_for, redirect, request
 import json
 from pathlib import Path
 from datetime import datetime
@@ -8,7 +8,7 @@ import os
 from dotenv import load_dotenv
 from postgrest import APIError
 from supabase_auth.errors import AuthApiError
-
+from flask_wtf.csrf import CSRFProtect
 from supabase_client import get_supabase
 
 load_dotenv()
@@ -44,14 +44,14 @@ for character in data:
 app = Flask(__name__)
 
 app.secret_key = os.environ["SECRET_KEY"]
+csrf = CSRFProtect(app)
 
 @app.route('/')
 def index():
     today = datetime.now(TIMEZONE).date()
     client = get_supabase()
-    response = client.auth.get_user()
-    if response:
-        user = response.user
+    user = get_current_user(client)
+    if user:
         todaysdraw = todayscharacterid(client, user.id, today)
         if todaysdraw is None:
             todaysdraw = createstodaysdraw(client, user.id, today, genderpreference(client, user.id))
@@ -60,7 +60,6 @@ def index():
         else:
             c = datecharacter(today)
     else:
-        user = None
         c = datecharacter(today)
     if c is None:
         return render_template('index.html', c=None, user=user), 503
@@ -77,7 +76,7 @@ def login():
     })
     return redirect(response.url)
 
-@app.route('/logout')
+@app.route('/logout', methods=["POST"])
 def logout():
     client = get_supabase()
     client.auth.sign_out()
@@ -100,10 +99,9 @@ def auth_callback():
 @app.route('/history')
 def history():
     client = get_supabase()
-    response = client.auth.get_user()
-    if not response:
+    user = get_current_user(client)
+    if not user:
         return redirect(url_for("login"))
-    user = response.user
     draws = client.table("draws").select("day", "character_id").eq("user_id", user.id).order("day", desc=True).execute()
     characterdata = []
     for row in draws.data:
@@ -172,4 +170,20 @@ def genderpreference(client, user_id):
         return DEFAULT_GENDER_PREF
     else:
         return response.data[0]["gender_pref"]
+
+def get_current_user(client):
+    try:
+        response = client.auth.get_user()
+    except AuthApiError as apierror:
+        session.clear()
+        print(f"Session was invalid, and it got cleared: {apierror}")
+        return None
+    if response is None:
+        return None
+    else:
+        return response.user
+
+
+
+
 
