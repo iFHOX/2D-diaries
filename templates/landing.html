@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+    <article class="logo">
+    <h1 class="diarytitle">2D Diaries</h1>
+    <h2 class="diarytag">Your daily anime character collector</h2>
+    </article>
+        <article class="info">
+            <p>Join the adventure by collecting random anime characters every day</p>
+            <p class="login"><a href="{{ url_for('login') }}">Continue with Google</a></p>
+            {% if c %}
+            <article class="card">
+                <figure class="picture">
+                    <img src="{{ c.image }}" alt="{{ c.name }}">
+                </figure>
+            <div class="text">
+                <h2>{{ c.name }}</h2>
+                <p class="anime">Series: {{ c.series }}</p>
+                <p class="desc">{{ c.description | truncate(500) }}</p>
+                <p class="more"><a href="{{ c.siteUrl }}" target="_blank" rel="noopener noreferrer">More about {{ c.name }} here!</a></p>
+            </div>
+            </article>
+            {% endif %}
+</article>
+{% endblock %}

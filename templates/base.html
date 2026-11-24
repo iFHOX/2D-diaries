@@ -3,28 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}Waifu of the day{% endblock %}</title>
+    <title>{% block title %}2D Diaries{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
 <header class="site-header">
+    <p class="main"><a href="{{ url_for('index') }}">Main</a></p>
     {% if user %}
             <p class="name">{{ user.user_metadata.get('full_name') or user.email }}</p>
             <form method="post" action="{{ url_for('logout') }}">
                 <input name="csrf_token" value="{{ csrf_token() }}" type="hidden">
                 <button type="submit">Log out</button>
             </form>
-            <p class="main"><a href="{{ url_for('index') }}">Main</a></p>
             <p class="history"><a href="{{ url_for('history') }}">History</a></p>
-            <p class="history"><a href="{{ url_for('settings') }}">Settings</a></p>
-    {% else %}
-            <p class="login"><a href="{{ url_for('login') }}">Log in with Google</a></p>
+            <p class="settings"><a href="{{ url_for('settings') }}">Settings</a></p>
     {% endif %}
 </header>
 {% block content %}
 {% endblock %}
 <footer>
     <p>Character data and images from <a href="https://anilist.co/" target="_blank" rel="noopener noreferrer">AniList</a></p>
+    <p><a href="{{ url_for('privacy') }}">Privacy</a></p>
 </footer>
 </body>
 </html>

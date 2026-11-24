@@ -62,6 +62,7 @@ def index():
             c = datecharacter(today)
     else:
         c = datecharacter(today)
+        return render_template('landing.html', c=c, user=None)
     if c is None:
         return render_template('index.html', c=None, user=user), 503
     return render_template('index.html', c=c, user=user)
@@ -132,7 +133,11 @@ def settings():
     current_pref = genderpreference(client, user.id)
     return render_template("settings.html", user=user, current_pref=current_pref)
 
-
+@app.route('/privacy')
+def privacy():
+    client = get_supabase()
+    user = get_current_user(client)
+    return render_template("privacy.html", user=user)
 
 
 

@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %} 2D Diaries - Privacy {% endblock %}
+{% block content %}
+<h1>Privacy</h1>
+<ol class="sections">
+    <li>
+        <h2>Who made 2D Diaries?</h2>
+        <p>2D Diaries is fully developed by <a href="https://github.com/iFHOX">one person</a> as a hobby project,
+        the idea came in the middle of a business class, and ended up becoming a hyperfixation.
+        Contact: support@2ddiaries.com</p>
+    </li>
+    <li>
+        <h2>What is collected:</h2>
+        <p>Email address, name and profile picture URL as Supabase stores these automatically, the only reason why this
+        is collected is that each user gets their own random character each day, which is tied to their ID.</p>
+        <p>What the app creates, the daily character draws and your gender preference.</p>
+        <p>A session cookie to keep you logged in. In addition to this, Render (hosting) and Supabase (The database) log
+        IP addresses and requests logs. This comes outside my control.</p>
+    </li>
+    <li>
+        <h2>What is NOT collected:</h2>
+        <p>No analytics, no ads, no tracking cookies, no selling of data. Just the bare minimum for your login and
+        draws collection for the app to work.</p>
+    </li>
+    <li>
+        <h2>How your data is used:</h2>
+        <p>The moment you sign in, a random character gets picked for you on the daily, without repeats,
+        and showing you a history of each character collected and when you collected them.</p>
+        <p>None of the information is shared but the services below:</p>
+    </li>
+    <li>
+        <h2>Third Parties that process it:</h2>
+        <p>Supabase: Database and authentication.</p>
+        <p>Render: Hosting.</p>
+        <p>Cloudflare: Domain and DNS.</p>
+        <p>Google: Sign in.</p>
+        <p>AniList: The anime characters images come from their servers. Your browser
+        contacts them, so AniList can see your IP address, as with any website.</p>
+    </li>
+    <li>
+        <h2>What's public:</h2>
+        <p>For now, nothing is public.</p>
+    </li>
+    <li>
+        <h2>Retention and deletion:</h2>
+        <p>Data is kept until you ask for it to be deleted.</p>
+        <p>If you want to delete all your data, you can email me at support@2ddiaries.com and I will take it out.
+        By deleting, all your information will be gone, counting previous pulls.</p> {# TODO: A delete button that handles this. #}
+    </li>
+    <li>
+        <h2>Cookies:</h2>
+        <p>I use a session cookie only, needed to log in.</p>
+    </li>
+    <li>
+        <h2>Changes:</h2>
+        <p>Last updated: November 23, 2026.</p>
+    </li>
+</ol>
+{% endblock %}
