@@ -15,3 +15,13 @@ dependencies = [
     "supabase-auth>=2.34.1",
     "tzdata>=2026.6",
 ]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.2.0",
+]
+
+
+[tool.pytest.ini_options]
+pythonpath = ["./"]
+
