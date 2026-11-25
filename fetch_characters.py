@@ -51,8 +51,12 @@ def clean_description(text):
     for p in paragraphs:
         p = p.strip()
         p = html.unescape(p)
-        if p.startswith(('__', '**')):
-            continue
+        plines = p.splitlines()
+        kept = []
+        for line in plines:
+            if not line.strip().startswith(('__', '**')):
+                kept.append(line)
+        p = " ".join(kept)
         pretexted = re.sub(pattern, r'\1', p)
         cleaned = pretexted.replace('__', '').replace('\n', ' ').replace('**', '').replace('_', '').strip()
         cleaned = ' '.join(cleaned.split())
