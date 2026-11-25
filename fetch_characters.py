@@ -43,9 +43,11 @@ def clean_description(text):
     if not text:
         return None
     spoilerpattern = r'~!.*?!~'
-    htmlpattern = r'</?(?:a|i|b|br)\b[^>]*>'
+    brpattern = r'<br\s*/?>'
     cleanspoiler = re.sub(spoilerpattern, '', text, flags=re.DOTALL)
-    cleanhref = re.sub(htmlpattern, '', cleanspoiler, flags=re.IGNORECASE)
+    cleanbr = re.sub(brpattern, '\n', cleanspoiler, flags=re.IGNORECASE)
+    htmlpattern = r'</?(?:a|i|b|br)\b[^>]*>'
+    cleanhref = re.sub(htmlpattern, '', cleanbr, flags=re.IGNORECASE)
     paragraphs = cleanhref.split('\n\n')
     pattern = r'\[(.*?)\]\((.*?)\)'
     for p in paragraphs:
