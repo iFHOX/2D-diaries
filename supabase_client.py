@@ -15,7 +15,7 @@ class FlaskSessionStorage(SyncSupportedStorage):
 
 def get_supabase():
     clientoptions = supabase.ClientOptions(flow_type="pkce", storage=FlaskSessionStorage())
-    client = supabase.create_client(supabase_url=os.environ["PROJECT_LINK"], supabase_key=os.environ["SUPABASE_PUBLISHABLE_KEY"], options=clientoptions)
+    client = supabase.create_client(supabase_url=os.environ["SUPABASE_URL"], supabase_key=os.environ["SUPABASE_PUBLISHABLE_KEY"], options=clientoptions)
     return client
 
 

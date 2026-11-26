@@ -1,12 +1,33 @@
 import app
 import fetch_characters
-from datetime import date, timedelta
+from types import SimpleNamespace
+from datetime import date, timedelta, datetime
 
 
 def test_character_pools_loaded():
     assert len(app.femalelist) == 400
     assert len(app.malelist) == 400
     assert len(app.characterbyid) == 800
+
+def test_index_missing_character_falls_back_to_shared_pick(monkeypatch):
+
+    fake_user = SimpleNamespace(id="user-1", email="test@example.com", user_metadata={})
+    monkeypatch.setattr(app, "get_supabase", lambda: None)
+    monkeypatch.setattr(app, "get_current_user", lambda client: fake_user)
+    monkeypatch.setattr(app, "todayscharacterid", lambda client, user_id, day: -1)  # an ID no character has
+
+    response = app.app.test_client().get("/")
+
+    assert response.status_code == 200
+
+    today = datetime.now(app.TIMEZONE).date()
+    character_to_show = app.datecharacter(today)
+    namecheck = response.get_data(as_text=True)
+
+    assert character_to_show['name'] in namecheck
+
+
+
 
 def test_clean_description_strips_stats_header():
 
@@ -138,5 +159,8 @@ def test_datecharacter_different_days_characters():
     for i in range(30):
         characters.add(app.datecharacter(day + timedelta(days=i))['id'])
     assert len(characters) > 1
+
+
+
 
 
