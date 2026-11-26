@@ -1,6 +1,6 @@
-# tests/test_app.py
 import app
 import fetch_characters
+from datetime import date, timedelta
 
 
 def test_character_pools_loaded():
@@ -112,3 +112,31 @@ def test_clean_description_spoiler_dotall():
     result = fetch_characters.clean_description(raw)
     assert result is not None
     assert result == "She trains every morning with her older brother. Her goal is to become the strongest swordswoman in the land."
+
+def test_datecharacter_same_day_same_character():
+
+    day = date(2026, 11, 25)
+
+    character = app.datecharacter(day)
+    character2 = app.datecharacter(day)
+
+    assert character is not None
+    assert character == character2
+
+def test_datecharacter_character_in_the_pool():
+
+    day = date(2026, 11, 25)
+    character = app.datecharacter(day)
+
+    assert character is not None
+    assert character['id'] in app.characterbyid
+    assert character == app.characterbyid[character['id']]
+
+def test_datecharacter_different_days_characters():
+    day = date(2026, 11, 25)
+    characters = set()
+    for i in range(30):
+        characters.add(app.datecharacter(day + timedelta(days=i))['id'])
+    assert len(characters) > 1
+
+
