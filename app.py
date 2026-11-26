@@ -39,6 +39,8 @@ characterbyid = {}
 for character in data:
     characterbyid[character['id']] = character
 
+bothlist = list(data)
+
 
 
 
@@ -139,13 +141,10 @@ def privacy():
     user = get_current_user(client)
     return render_template("privacy.html", user=user)
 
-
-
-
 def datecharacter(day):
-    if femalelist:
-        chosencharacter = day.toordinal() % len(femalelist)
-        return femalelist[chosencharacter]
+    if bothlist:
+        chosencharacter = day.toordinal() % len(bothlist)
+        return bothlist[chosencharacter]
     else:
         return None
 
