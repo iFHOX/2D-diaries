@@ -59,7 +59,7 @@ def index():
         if todaysdraw is None:
             todaysdraw = createstodaysdraw(client, user.id, today, genderpreference(client, user.id))
         if todaysdraw is not None:
-            c = characterbyid[todaysdraw]
+            c = characterbyid.get(todaysdraw) or datecharacter(today)
         else:
             c = datecharacter(today)
     else:

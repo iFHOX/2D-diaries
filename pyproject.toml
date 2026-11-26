@@ -3,10 +3,8 @@ name = "2D-Diaries"
 version = "0.1.0"
 requires-python = ">=3.14"
 dependencies = [
-    "app>=0.0.1",
     "flask>=3.1.3",
     "flask-wtf>=1.3.0",
-    "gotrue>=2.12.4",
     "gunicorn>=27.0.1",
     "postgrest>=2.34.1",
     "python-dotenv>=1.2.4",
