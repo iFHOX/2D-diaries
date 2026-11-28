@@ -2,6 +2,7 @@ import app
 import fetch_characters
 from types import SimpleNamespace
 from datetime import date, timedelta, datetime
+from unittest.mock import MagicMock
 
 
 def test_character_pools_loaded():
@@ -26,7 +27,28 @@ def test_index_missing_character_falls_back_to_shared_pick(monkeypatch):
 
     assert character_to_show['name'] in namecheck
 
+def test_createstodaysdraw_excludes_past_draws(monkeypatch):
+    day = date(2026, 11, 27)
 
+    pool = [{"id": 1}, {"id": 2}]
+    monkeypatch.setattr(app, "femalelist", pool)
+
+    client = MagicMock()
+
+    client.table.return_value = client
+    client.select.return_value = client
+    client.insert.return_value = client
+    client.eq.return_value = client
+
+    past = MagicMock(data=[{"character_id" : pool[0]["id"]}])
+    inserted = MagicMock()
+    client.execute.side_effect = [past, inserted]
+
+    result = app.createstodaysdraw(client, "u1", day, "female")
+
+    row = client.insert.call_args.args[0]
+    assert row == {"user_id": "u1", "day": "2026-11-27", "character_id" : 2}
+    assert result == 2
 
 
 def test_clean_description_strips_stats_header():
